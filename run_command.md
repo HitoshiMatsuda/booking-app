@@ -1,0 +1,2 @@
+* matsudahitoshi@matsudahitoshinoMacBook-Air institution_reserve_service % uvicorn sql_app.main:app --reload
+* matsudahitoshi@matsudahitoshinoMacBook-Air institution_reserve_service % streamlit run app.py
