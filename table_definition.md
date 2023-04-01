@@ -16,8 +16,6 @@ _institution_name:施設ID
 institution_name:駒沢オリンピック公園
 _institution_capacity:施設ID
 institution_capacity:100
-_institution_rank:施設ランク
-institution_rank:1
 _institution_starttime:利用可の時間（開始）
 institution_starttime:08:00
 _institution_endtime:利用可の時間（終了）

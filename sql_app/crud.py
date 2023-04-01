@@ -56,7 +56,6 @@ def create_institution(db: Session, institution: schemas.Institution):
     db_institution = models.Institution(
         institution_name=institution.institution_name,
         institution_capacity=institution.institution_capacity,
-        institution_rank=institution.institution_rank,
         institution_starttime=institution.institution_starttime,
         institution_endtime=institution.institution_endtime
         )
@@ -68,8 +67,11 @@ def create_institution(db: Session, institution: schemas.Institution):
 # @matsuda
 # 予約情報を登録
 def create_booking(db: Session, booking: schemas.Booking):
-    db_booked = db.query(models.Booking).filter(models.Booking.institution_id == booking.institution_id).filter(models.Booking.end > booking.start).filter(models.Booking.start < booking.end).all()
-    
+    # 予約の重複チェックロジック
+    # 施設、日付、時間帯が重複するか
+    db_booked = db.query(models.Booking).filter(models.Booking.institution_id == booking.institution_id).filter(models.Booking.date == booking.date).filter(models.Booking.end > booking.start).filter(models.Booking.start < booking.end).all()
+
+
     # 重複なし
     if len(db_booked) == 0:                
         db_booking = models.Booking(

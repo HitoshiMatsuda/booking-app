@@ -39,7 +39,6 @@ elif key == '施設':
         # institution_id: int = random.randint(0,100)
         institution_name: str = st.text_input('名前',max_chars = 15)
         institution_capacity: int = st.number_input('定員',step = 10)
-        institution_rank: int = st.number_input('施設レベル',step=1)
         institution_starttime = st.time_input('開始',value = datetime.time(hour=9,minute=0))
         institution_endtime = st.time_input('終了',value = datetime.time(hour=20,minute=0))
         
@@ -47,7 +46,6 @@ elif key == '施設':
             # 'institution_id':institution_id,
             'institution_name':institution_name,
             'institution_capacity':institution_capacity,
-            'institution_rank':institution_rank,
             'institution_starttime':datetime.time(
                 hour=institution_starttime.hour,
                 minute=institution_starttime.minute
@@ -107,7 +105,7 @@ elif key == '予約':
     
     st.write('## 施設一覧')
     df_institutions =  pd.DataFrame(institutions)
-    df_institutions.columns = ['施設名','収容人数','施設ランク','始業時間','終業時間','施設ID']
+    # df_institutions.columns = ['施設名','収容人数','始業時間','終業時間','施設ID']
     # st.table(df_institutions)
     
     # 予約一覧取得
@@ -121,28 +119,45 @@ elif key == '予約':
     df_bookings =  pd.DataFrame(bookings)
     # st.write(df_bookings)
     
+    # 登録されているユーザー一覧を取得
     user_id_dict = {}
     for user in users:
         user_id_dict[user['user_id']]=user['user_name']
     # st.write(user_id_dict)
     
+    # 登録されている施設一覧を取得
     institution_id_dict = {}
     for institution in institutions:
         institution_id_dict[institution['institution_id']]=institution['institution_name']
     # st.write(institution_id_dict)
-
     
     # 値変換メソッド：ID⇨名前
     to_user_name = lambda x: user_id_dict[x]
     to_institution_name = lambda x: institution_id_dict[x]
     to_time = lambda x:datetime.time.fromisoformat(x).strftime('%H:%M')
-    
-    df_bookings['user_id'] = df_bookings['user_id'].map(to_user_name)
-    df_bookings['institution_id'] = df_bookings['institution_id'].map(to_institution_name)
+
+    # 予約一覧表示Widget 
+    df_bookings['user_name'] = df_bookings['user_id'].map(to_user_name)
+    df_bookings['institution_name'] = df_bookings['institution_id'].map(to_institution_name)
     df_bookings['start'] = df_bookings['start'].map(to_time)
     df_bookings['end'] = df_bookings['end'].map(to_time)
 
-    df_bookings.columns = ['利用者名','施設名','予約人数','日付','開始時刻','終了時刻','予約ID']
+    # 不要なカラムを削除
+    df_bookings = df_bookings.drop(columns=['user_id', 'institution_id'])
+
+    # カラム名を変更
+    df_bookings = df_bookings.rename(columns={
+        'user_name':'予約者名',
+        'institution_name':'施設名',
+        'riservation_number':'予約人数',
+        'date':'日付',
+        'start':'開始時間',
+        'end':'終了時間',
+        'booking_id':'予約番号'
+    })
+
+    # 予約一覧テーブルのカラムの順番を変更
+    df_bookings = df_bookings.reindex(['予約者名', '施設名', '予約人数','日付','開始時間','終了時間','予約番号'], axis=1)
     st.table(df_bookings)
 
     
@@ -212,9 +227,9 @@ elif key == '予約':
                 st.error('## 利用可能時刻は9:00-20:00です。')            
             else:
                 # 予約完了
-                # st.write('## 送信データ')
-                # st.json(data)
-                # st.write('レスポンス結果')
+                st.write('## 送信データ')
+                st.json(data)
+                st.write('レスポンス結果')
                 url = 'http://127.0.0.1:8000/bookings'
                 res = requests.post(url, json = data)
                 if res.status_code == 200:

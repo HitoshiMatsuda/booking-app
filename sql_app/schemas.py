@@ -37,7 +37,6 @@ class User(CreateUser):
 class CreateInstitution(BaseModel):
     institution_name:str
     institution_capacity:int
-    institution_rank:int
     institution_starttime:datetime.time
     institution_endtime:datetime.time
     

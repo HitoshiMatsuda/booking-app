@@ -17,7 +17,6 @@ class Institution(Base):
     institution_id = Column(Integer, primary_key=True, index=True)
     institution_name = Column(String,unique=True, index=True)
     institution_capacity = Column(Integer)
-    institution_rank = Column(Integer)
     institution_starttime = Column(Time,nullable=False)
     institution_endtime  = Column(Time,nullable=False)
 
