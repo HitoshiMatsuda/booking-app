@@ -117,6 +117,8 @@ elif key == '予約':
     bookings = res.json()
     st.write('## 予約一覧')
     df_bookings =  pd.DataFrame(bookings)
+    flag = df_bookings.empty
+    print(flag)
     # st.write(df_bookings)
     
     # 登録されているユーザー一覧を取得
@@ -131,34 +133,38 @@ elif key == '予約':
         institution_id_dict[institution['institution_id']]=institution['institution_name']
     # st.write(institution_id_dict)
     
-    # 値変換メソッド：ID⇨名前
-    to_user_name = lambda x: user_id_dict[x]
-    to_institution_name = lambda x: institution_id_dict[x]
-    to_time = lambda x:datetime.time.fromisoformat(x).strftime('%H:%M')
+    # DBにデータがない場合予約一覧は表示しない
+    if flag == False:
+        # 値変換メソッド：ID⇨名前
+        to_user_name = lambda x: user_id_dict[x]
+        to_institution_name = lambda x: institution_id_dict[x]
+        to_time = lambda x:datetime.time.fromisoformat(x).strftime('%H:%M')
 
-    # 予約一覧表示Widget 
-    df_bookings['user_name'] = df_bookings['user_id'].map(to_user_name)
-    df_bookings['institution_name'] = df_bookings['institution_id'].map(to_institution_name)
-    df_bookings['start'] = df_bookings['start'].map(to_time)
-    df_bookings['end'] = df_bookings['end'].map(to_time)
+        # 予約一覧表示Widget 
+        df_bookings['user_name'] = df_bookings['user_id'].map(to_user_name)
+        df_bookings['institution_name'] = df_bookings['institution_id'].map(to_institution_name)
+        df_bookings['start'] = df_bookings['start'].map(to_time)
+        df_bookings['end'] = df_bookings['end'].map(to_time)
 
-    # 不要なカラムを削除
-    df_bookings = df_bookings.drop(columns=['user_id', 'institution_id'])
+        # 不要なカラムを削除
+        df_bookings = df_bookings.drop(columns=['user_id', 'institution_id'])
 
-    # カラム名を変更
-    df_bookings = df_bookings.rename(columns={
-        'user_name':'予約者名',
-        'institution_name':'施設名',
-        'riservation_number':'予約人数',
-        'date':'日付',
-        'start':'開始時間',
-        'end':'終了時間',
-        'booking_id':'予約番号'
-    })
+        # カラム名を変更
+        df_bookings = df_bookings.rename(columns={
+            'user_name':'予約者名',
+            'institution_name':'施設名',
+            'riservation_number':'予約人数',
+            'date':'日付',
+            'start':'開始時間',
+            'end':'終了時間',
+            'booking_id':'予約番号'
+        })
 
-    # 予約一覧テーブルのカラムの順番を変更
-    df_bookings = df_bookings.reindex(['予約者名', '施設名', '予約人数','日付','開始時間','終了時間','予約番号'], axis=1)
-    st.table(df_bookings)
+        # 予約一覧テーブルのカラムの順番を変更
+        df_bookings = df_bookings.reindex(['予約者名', '施設名', '予約人数','日付','開始時間','終了時間','予約番号'], axis=1)
+        st.table(df_bookings)
+    else:
+        st.write('### 現在予約されたデータはありません')
 
     
     with st.form(key = 'bookings'):
